@@ -3,6 +3,7 @@
 -- Base de datos: Oracle Autonomous Database (BDFullstack3)
 -- USUARIO_ID referencia a los usuarios de user-service
 -- (ids 1 al 5 del script de user-service)
+-- BANEADO / MOTIVO_BANEO: los actualiza el administrador mediante moderation-service
 -- ============================================================
 
 DROP TABLE COMENTARIOS CASCADE CONSTRAINTS;
@@ -22,6 +23,8 @@ CREATE TABLE TEMAS (
     USUARIO_ID     NUMBER(19, 0)       NOT NULL,
     CATEGORIA_ID   NUMBER(19, 0)       NOT NULL,
     FECHA_CREACION TIMESTAMP(9)        NOT NULL,
+    BANEADO        BOOLEAN DEFAULT FALSE NOT NULL,
+    MOTIVO_BANEO   VARCHAR2(300 CHAR),
     CONSTRAINT FK_TEMA_CATEGORIA FOREIGN KEY (CATEGORIA_ID) REFERENCES CATEGORIAS (ID)
 );
 
@@ -31,6 +34,8 @@ CREATE TABLE COMENTARIOS (
     USUARIO_ID     NUMBER(19, 0)       NOT NULL,
     TEMA_ID        NUMBER(19, 0)       NOT NULL,
     FECHA_CREACION TIMESTAMP(9)        NOT NULL,
+    BANEADO        BOOLEAN DEFAULT FALSE NOT NULL,
+    MOTIVO_BANEO   VARCHAR2(300 CHAR),
     CONSTRAINT FK_COMENTARIO_TEMA FOREIGN KEY (TEMA_ID) REFERENCES TEMAS (ID) ON DELETE CASCADE
 );
 

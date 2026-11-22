@@ -34,4 +34,11 @@ public class Comentario {
 
     @Column(nullable = false)
     private LocalDateTime fechaCreacion;
+
+    // Moderacion: un contenido baneado deja de mostrarse en el foro (lo gestiona moderation-service)
+    @Column(nullable = false)
+    private boolean baneado;
+
+    @Column(length = 300)
+    private String motivoBaneo;
 }

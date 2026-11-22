@@ -31,7 +31,7 @@ public class TemaServiceImpl implements TemaService {
 
     @Override
     public List<TemaResponse> obtenerTodos() {
-        return temaRepository.findAllByOrderByFechaCreacionDesc().stream().map(TemaResponse::from).toList();
+        return temaRepository.findByBaneadoFalseOrderByFechaCreacionDesc().stream().map(TemaResponse::from).toList();
     }
 
     @Override
@@ -72,21 +72,23 @@ public class TemaServiceImpl implements TemaService {
     @Override
     public List<TemaResponse> obtenerPorCategoria(Long categoriaId) {
         categoriaService.obtenerPorId(categoriaId);
-        return temaRepository.findByCategoriaIdOrderByFechaCreacionDesc(categoriaId).stream().map(TemaResponse::from).toList();
+        return temaRepository.findByCategoriaIdAndBaneadoFalseOrderByFechaCreacionDesc(categoriaId).stream().map(TemaResponse::from).toList();
     }
 
     @Override
     public List<TemaResponse> buscarPorTitulo(String titulo) {
-        return temaRepository.findByTituloContainingIgnoreCaseOrderByFechaCreacionDesc(titulo).stream().map(TemaResponse::from).toList();
+        return temaRepository.findByTituloContainingIgnoreCaseAndBaneadoFalseOrderByFechaCreacionDesc(titulo).stream().map(TemaResponse::from).toList();
     }
 
     @Override
     public List<TemaResponse> obtenerPorUsuario(Long usuarioId) {
-        return temaRepository.findByUsuarioIdOrderByFechaCreacionDesc(usuarioId).stream().map(TemaResponse::from).toList();
+        return temaRepository.findByUsuarioIdAndBaneadoFalseOrderByFechaCreacionDesc(usuarioId).stream().map(TemaResponse::from).toList();
     }
 
     private Tema buscarTema(Long id) {
+        // Un tema baneado se comporta como inexistente para el resto del foro
         return temaRepository.findById(id)
+                .filter(tema -> !tema.isBaneado())
                 .orElseThrow(() -> new RecursoNoEncontradoException("No existe un tema con id " + id));
     }
 

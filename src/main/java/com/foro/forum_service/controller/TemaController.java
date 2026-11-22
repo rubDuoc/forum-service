@@ -2,9 +2,12 @@ package com.foro.forum_service.controller;
 
 import com.foro.forum_service.dto.ComentarioRequest;
 import com.foro.forum_service.dto.ComentarioResponse;
+import com.foro.forum_service.dto.ModeracionRequest;
+import com.foro.forum_service.dto.ModeracionResponse;
 import com.foro.forum_service.dto.TemaRequest;
 import com.foro.forum_service.dto.TemaResponse;
 import com.foro.forum_service.service.ComentarioService;
+import com.foro.forum_service.service.ModeracionContenidoService;
 import com.foro.forum_service.service.TemaService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -22,10 +25,13 @@ public class TemaController {
 
     private final TemaService temaService;
     private final ComentarioService comentarioService;
+    private final ModeracionContenidoService moderacionService;
 
-    public TemaController(TemaService temaService, ComentarioService comentarioService) {
+    public TemaController(TemaService temaService, ComentarioService comentarioService,
+                          ModeracionContenidoService moderacionService) {
         this.temaService = temaService;
         this.comentarioService = comentarioService;
+        this.moderacionService = moderacionService;
     }
 
     @GetMapping
@@ -82,5 +88,12 @@ public class TemaController {
     public ResponseEntity<ComentarioResponse> comentar(@PathVariable Long id, @Valid @RequestBody ComentarioRequest request,
                                                        @RequestHeader(USUARIO_HEADER) Long actorId) {
         return ResponseEntity.status(HttpStatus.CREATED).body(comentarioService.comentar(id, request, actorId));
+    }
+
+    // Moderacion (solo ADMIN): banear o desbanear. La usa moderation-service al resolver reportes
+    @PatchMapping("/{id}/moderacion")
+    public ModeracionResponse moderar(@PathVariable Long id, @Valid @RequestBody ModeracionRequest request,
+                                      @RequestHeader(USUARIO_HEADER) Long actorId) {
+        return moderacionService.moderarTema(id, request, actorId);
     }
 }

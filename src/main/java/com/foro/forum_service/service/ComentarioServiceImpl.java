@@ -33,7 +33,7 @@ public class ComentarioServiceImpl implements ComentarioService {
 
     @Override
     public List<ComentarioResponse> obtenerTodos() {
-        return comentarioRepository.findAll().stream().map(ComentarioResponse::from).toList();
+        return comentarioRepository.findByBaneadoFalse().stream().map(ComentarioResponse::from).toList();
     }
 
     @Override
@@ -75,21 +75,23 @@ public class ComentarioServiceImpl implements ComentarioService {
     @Override
     public List<ComentarioResponse> obtenerPorTema(Long temaId) {
         buscarTema(temaId);
-        return comentarioRepository.findByTemaIdOrderByFechaCreacionAsc(temaId).stream().map(ComentarioResponse::from).toList();
+        return comentarioRepository.findByTemaIdAndBaneadoFalseOrderByFechaCreacionAsc(temaId).stream().map(ComentarioResponse::from).toList();
     }
 
     @Override
     public List<ComentarioResponse> obtenerPorUsuario(Long usuarioId) {
-        return comentarioRepository.findByUsuarioIdOrderByFechaCreacionDesc(usuarioId).stream().map(ComentarioResponse::from).toList();
+        return comentarioRepository.findByUsuarioIdAndBaneadoFalseOrderByFechaCreacionDesc(usuarioId).stream().map(ComentarioResponse::from).toList();
     }
 
     private Tema buscarTema(Long temaId) {
         return temaRepository.findById(temaId)
+                .filter(tema -> !tema.isBaneado())
                 .orElseThrow(() -> new RecursoNoEncontradoException("No existe un tema con id " + temaId));
     }
 
     private Comentario buscarComentario(Long id) {
         return comentarioRepository.findById(id)
+                .filter(comentario -> !comentario.isBaneado())
                 .orElseThrow(() -> new RecursoNoEncontradoException("No existe un comentario con id " + id));
     }
 }

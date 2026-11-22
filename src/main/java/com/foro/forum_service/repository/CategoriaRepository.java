@@ -13,7 +13,7 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
 
     @Query("""
             select new com.foro.forum_service.dto.CategoriaResumen(c.id, c.nombre, count(t))
-            from Categoria c left join Tema t on t.categoria = c
+            from Categoria c left join Tema t on t.categoria = c and t.baneado = false
             group by c.id, c.nombre
             order by count(t) desc, c.nombre
             """)

@@ -2,7 +2,10 @@ package com.foro.forum_service.controller;
 
 import com.foro.forum_service.dto.ComentarioRequest;
 import com.foro.forum_service.dto.ComentarioResponse;
+import com.foro.forum_service.dto.ModeracionRequest;
+import com.foro.forum_service.dto.ModeracionResponse;
 import com.foro.forum_service.service.ComentarioService;
+import com.foro.forum_service.service.ModeracionContenidoService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +22,11 @@ public class ComentarioController {
 
     private final ComentarioService comentarioService;
 
-    public ComentarioController(ComentarioService comentarioService) {
+    private final ModeracionContenidoService moderacionService;
+
+    public ComentarioController(ComentarioService comentarioService, ModeracionContenidoService moderacionService) {
         this.comentarioService = comentarioService;
+        this.moderacionService = moderacionService;
     }
 
     @GetMapping
@@ -49,5 +55,12 @@ public class ComentarioController {
     @GetMapping("/usuario/{usuarioId}")
     public List<ComentarioResponse> obtenerPorUsuario(@PathVariable Long usuarioId) {
         return comentarioService.obtenerPorUsuario(usuarioId);
+    }
+
+    // Moderacion (solo ADMIN): banear o desbanear. La usa moderation-service al resolver reportes
+    @PatchMapping("/{id}/moderacion")
+    public ModeracionResponse moderar(@PathVariable Long id, @Valid @RequestBody ModeracionRequest request,
+                                      @RequestHeader(USUARIO_HEADER) Long actorId) {
+        return moderacionService.moderarComentario(id, request, actorId);
     }
 }
