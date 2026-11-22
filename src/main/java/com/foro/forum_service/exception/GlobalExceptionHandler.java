@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -14,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+// Manejo global de errores: todas las respuestas de error salen en JSON con el mismo formato
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -28,6 +31,10 @@ public class GlobalExceptionHandler {
         return respuesta(HttpStatus.CONFLICT, ex.getMessage(), null);
     }
 
+    @ExceptionHandler(AccesoDenegadoException.class)
+    public ResponseEntity<ErrorResponse> accesoDenegado(AccesoDenegadoException ex) {
+        return respuesta(HttpStatus.FORBIDDEN, ex.getMessage(), null);
+    }
 
     // Errores de @Valid: devuelve que campo fallo y por que
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -36,6 +43,17 @@ public class GlobalExceptionHandler {
         ex.getBindingResult().getFieldErrors()
                 .forEach(e -> detalles.putIfAbsent(e.getField(), e.getDefaultMessage()));
         return respuesta(HttpStatus.BAD_REQUEST, "Datos de entrada invalidos", detalles);
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<ErrorResponse> headerFaltante(MissingRequestHeaderException ex) {
+        return respuesta(HttpStatus.BAD_REQUEST, "Falta el header " + ex.getHeaderName(), null);
+    }
+
+    // Falta un parametro obligatorio de la URL (?nombre=...)
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> parametroFaltante(MissingServletRequestParameterException ex) {
+        return respuesta(HttpStatus.BAD_REQUEST, "Falta el parametro " + ex.getParameterName(), null);
     }
 
     @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class})
@@ -50,7 +68,12 @@ public class GlobalExceptionHandler {
     }
 
     private ResponseEntity<ErrorResponse> respuesta(HttpStatus status, String mensaje, Map<String, String> detalles) {
-        return ResponseEntity.status(status).body(new ErrorResponse(
-                LocalDateTime.now(), status.value(), status.getReasonPhrase(), mensaje, detalles));
+        return ResponseEntity.status(status).body(ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(status.value())
+                .error(status.getReasonPhrase())
+                .mensaje(mensaje)
+                .detalles(detalles)
+                .build());
     }
 }
