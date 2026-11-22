@@ -1,0 +1,7 @@
+target/
+wallet/
+.git/
+.mvn/
+mvnw
+mvnw.cmd
+*.md

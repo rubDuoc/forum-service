@@ -1,5 +1,6 @@
 package com.foro.forum_service.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -7,11 +8,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
 
-    // CORS: solo se permite el frontend local que consumira la API
+    // Origenes permitidos: se configuran en application.properties (variable de entorno CORS_ORIGENES)
+    @Value("${cors.origenes-permitidos}")
+    private String[] origenesPermitidos;
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:3000", "http://localhost:4200", "http://localhost:5173")
-                .allowedMethods("GET", "POST", "PUT", "DELETE");
+                .allowedOrigins(origenesPermitidos)
+                .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE");
     }
 }
