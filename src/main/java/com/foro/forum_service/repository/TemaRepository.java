@@ -6,19 +6,20 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
+// Las consultas publicas excluyen los temas baneados por un administrador
 public interface TemaRepository extends JpaRepository<Tema, Long> {
 
     @EntityGraph(attributePaths = "categoria")
-    List<Tema> findAllByOrderByFechaCreacionDesc();
+    List<Tema> findByBaneadoFalseOrderByFechaCreacionDesc();
 
     @EntityGraph(attributePaths = "categoria")
-    List<Tema> findByCategoriaIdOrderByFechaCreacionDesc(Long categoriaId);
+    List<Tema> findByCategoriaIdAndBaneadoFalseOrderByFechaCreacionDesc(Long categoriaId);
 
     @EntityGraph(attributePaths = "categoria")
-    List<Tema> findByTituloContainingIgnoreCaseOrderByFechaCreacionDesc(String titulo);
+    List<Tema> findByTituloContainingIgnoreCaseAndBaneadoFalseOrderByFechaCreacionDesc(String titulo);
 
     @EntityGraph(attributePaths = "categoria")
-    List<Tema> findByUsuarioIdOrderByFechaCreacionDesc(Long usuarioId);
+    List<Tema> findByUsuarioIdAndBaneadoFalseOrderByFechaCreacionDesc(Long usuarioId);
 
     boolean existsByCategoriaId(Long categoriaId);
 }
