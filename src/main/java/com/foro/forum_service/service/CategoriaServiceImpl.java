@@ -9,19 +9,25 @@ import com.foro.forum_service.repository.CategoriaRepository;
 import com.foro.forum_service.repository.TemaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Slf4j
+// Transaccional: cada operacion trabaja dentro de una transaccion (necesario con open-in-view=false)
 @Service
+@Transactional
 public class CategoriaServiceImpl implements CategoriaService {
 
     private final CategoriaRepository categoriaRepository;
     private final TemaRepository temaRepository;
+    private final AutorizacionService autorizacionService;
 
-    public CategoriaServiceImpl(CategoriaRepository categoriaRepository, TemaRepository temaRepository) {
+    public CategoriaServiceImpl(CategoriaRepository categoriaRepository, TemaRepository temaRepository,
+                                AutorizacionService autorizacionService) {
         this.categoriaRepository = categoriaRepository;
         this.temaRepository = temaRepository;
+        this.autorizacionService = autorizacionService;
     }
 
     @Override
@@ -36,7 +42,8 @@ public class CategoriaServiceImpl implements CategoriaService {
     }
 
     @Override
-    public Categoria crear(CategoriaRequest request) {
+    public Categoria crear(CategoriaRequest request, Long actorId) {
+        autorizacionService.validarAdmin(actorId);
         if (categoriaRepository.existsByNombreIgnoreCase(request.nombre())) {
             throw new ConflictoException("Ya existe la categoria '" + request.nombre() + "'");
         }
@@ -49,7 +56,8 @@ public class CategoriaServiceImpl implements CategoriaService {
     }
 
     @Override
-    public Categoria actualizar(Long id, CategoriaRequest request) {
+    public Categoria actualizar(Long id, CategoriaRequest request, Long actorId) {
+        autorizacionService.validarAdmin(actorId);
         Categoria categoria = obtenerPorId(id);
         if (!categoria.getNombre().equalsIgnoreCase(request.nombre())
                 && categoriaRepository.existsByNombreIgnoreCase(request.nombre())) {
@@ -62,7 +70,8 @@ public class CategoriaServiceImpl implements CategoriaService {
     }
 
     @Override
-    public void eliminar(Long id) {
+    public void eliminar(Long id, Long actorId) {
+        autorizacionService.validarAdmin(actorId);
         Categoria categoria = obtenerPorId(id);
         if (temaRepository.existsByCategoriaId(id)) {
             throw new ConflictoException("No se puede eliminar la categoria porque tiene temas asociados");

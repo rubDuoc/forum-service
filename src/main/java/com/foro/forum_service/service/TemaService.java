@@ -11,11 +11,11 @@ public interface TemaService {
 
     TemaResponse obtenerPorId(Long id);
 
-    TemaResponse crear(TemaRequest request);
+    TemaResponse crear(TemaRequest request, Long actorId);
 
-    TemaResponse actualizar(Long id, TemaRequest request);
+    TemaResponse actualizar(Long id, TemaRequest request, Long actorId);
 
-    void eliminar(Long id);
+    void eliminar(Long id, Long actorId);
 
     List<TemaResponse> obtenerPorCategoria(Long categoriaId);
 
