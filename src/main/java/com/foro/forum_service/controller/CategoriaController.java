@@ -15,6 +15,9 @@ import java.util.List;
 @RequestMapping("/api/categorias")
 public class CategoriaController {
 
+    // Header con el id del usuario que realiza la operacion (el que inicio sesion)
+    public static final String USUARIO_HEADER = "X-Usuario-Id";
+
     private final CategoriaService categoriaService;
 
     public CategoriaController(CategoriaService categoriaService) {
@@ -31,19 +34,22 @@ public class CategoriaController {
         return categoriaService.obtenerPorId(id);
     }
 
+    // Gestion de categorias: solo ADMIN
     @PostMapping
-    public ResponseEntity<Categoria> crear(@Valid @RequestBody CategoriaRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(categoriaService.crear(request));
+    public ResponseEntity<Categoria> crear(@Valid @RequestBody CategoriaRequest request,
+                                           @RequestHeader(USUARIO_HEADER) Long actorId) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(categoriaService.crear(request, actorId));
     }
 
     @PutMapping("/{id}")
-    public Categoria actualizar(@PathVariable Long id, @Valid @RequestBody CategoriaRequest request) {
-        return categoriaService.actualizar(id, request);
+    public Categoria actualizar(@PathVariable Long id, @Valid @RequestBody CategoriaRequest request,
+                                @RequestHeader(USUARIO_HEADER) Long actorId) {
+        return categoriaService.actualizar(id, request, actorId);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        categoriaService.eliminar(id);
+    public ResponseEntity<Void> eliminar(@PathVariable Long id, @RequestHeader(USUARIO_HEADER) Long actorId) {
+        categoriaService.eliminar(id, actorId);
         return ResponseEntity.noContent().build();
     }
 

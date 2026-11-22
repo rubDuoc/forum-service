@@ -12,11 +12,11 @@ public interface CategoriaService {
 
     Categoria obtenerPorId(Long id);
 
-    Categoria crear(CategoriaRequest request);
+    Categoria crear(CategoriaRequest request, Long actorId);
 
-    Categoria actualizar(Long id, CategoriaRequest request);
+    Categoria actualizar(Long id, CategoriaRequest request, Long actorId);
 
-    void eliminar(Long id);
+    void eliminar(Long id, Long actorId);
 
     List<CategoriaResumen> resumen();
 }

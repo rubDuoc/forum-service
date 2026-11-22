@@ -31,6 +31,12 @@ public class GlobalExceptionHandler {
         return respuesta(HttpStatus.CONFLICT, ex.getMessage(), null);
     }
 
+    // 503: otro microservicio no respondio (propio de forum-service)
+    @ExceptionHandler(ServicioNoDisponibleException.class)
+    public ResponseEntity<ErrorResponse> servicioNoDisponible(ServicioNoDisponibleException ex) {
+        return respuesta(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage(), null);
+    }
+
     @ExceptionHandler(AccesoDenegadoException.class)
     public ResponseEntity<ErrorResponse> accesoDenegado(AccesoDenegadoException ex) {
         return respuesta(HttpStatus.FORBIDDEN, ex.getMessage(), null);

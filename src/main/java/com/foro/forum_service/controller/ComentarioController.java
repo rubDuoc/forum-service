@@ -14,6 +14,9 @@ import java.util.List;
 @RequestMapping("/api/comentarios")
 public class ComentarioController {
 
+    // Header con el id del usuario que realiza la operacion (el que inicio sesion)
+    public static final String USUARIO_HEADER = "X-Usuario-Id";
+
     private final ComentarioService comentarioService;
 
     public ComentarioController(ComentarioService comentarioService) {
@@ -30,14 +33,16 @@ public class ComentarioController {
         return comentarioService.obtenerPorId(id);
     }
 
+    // Editar y eliminar: solo el autor o un ADMIN
     @PutMapping("/{id}")
-    public ComentarioResponse actualizar(@PathVariable Long id, @Valid @RequestBody ComentarioRequest request) {
-        return comentarioService.actualizar(id, request);
+    public ComentarioResponse actualizar(@PathVariable Long id, @Valid @RequestBody ComentarioRequest request,
+                                         @RequestHeader(USUARIO_HEADER) Long actorId) {
+        return comentarioService.actualizar(id, request, actorId);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        comentarioService.eliminar(id);
+    public ResponseEntity<Void> eliminar(@PathVariable Long id, @RequestHeader(USUARIO_HEADER) Long actorId) {
+        comentarioService.eliminar(id, actorId);
         return ResponseEntity.noContent().build();
     }
 

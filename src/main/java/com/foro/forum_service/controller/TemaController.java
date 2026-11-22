@@ -17,6 +17,9 @@ import java.util.List;
 @RequestMapping("/api/temas")
 public class TemaController {
 
+    // Header con el id del usuario que realiza la operacion (el que inicio sesion)
+    public static final String USUARIO_HEADER = "X-Usuario-Id";
+
     private final TemaService temaService;
     private final ComentarioService comentarioService;
 
@@ -35,19 +38,23 @@ public class TemaController {
         return temaService.obtenerPorId(id);
     }
 
+    // Publicar: cualquier usuario registrado; el autor es el del header
     @PostMapping
-    public ResponseEntity<TemaResponse> crear(@Valid @RequestBody TemaRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(temaService.crear(request));
+    public ResponseEntity<TemaResponse> crear(@Valid @RequestBody TemaRequest request,
+                                              @RequestHeader(USUARIO_HEADER) Long actorId) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(temaService.crear(request, actorId));
     }
 
+    // Editar y eliminar: solo el autor o un ADMIN
     @PutMapping("/{id}")
-    public TemaResponse actualizar(@PathVariable Long id, @Valid @RequestBody TemaRequest request) {
-        return temaService.actualizar(id, request);
+    public TemaResponse actualizar(@PathVariable Long id, @Valid @RequestBody TemaRequest request,
+                                   @RequestHeader(USUARIO_HEADER) Long actorId) {
+        return temaService.actualizar(id, request, actorId);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        temaService.eliminar(id);
+    public ResponseEntity<Void> eliminar(@PathVariable Long id, @RequestHeader(USUARIO_HEADER) Long actorId) {
+        temaService.eliminar(id, actorId);
         return ResponseEntity.noContent().build();
     }
 
@@ -72,7 +79,8 @@ public class TemaController {
     }
 
     @PostMapping("/{id}/comentarios")
-    public ResponseEntity<ComentarioResponse> comentar(@PathVariable Long id, @Valid @RequestBody ComentarioRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(comentarioService.comentar(id, request));
+    public ResponseEntity<ComentarioResponse> comentar(@PathVariable Long id, @Valid @RequestBody ComentarioRequest request,
+                                                       @RequestHeader(USUARIO_HEADER) Long actorId) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(comentarioService.comentar(id, request, actorId));
     }
 }

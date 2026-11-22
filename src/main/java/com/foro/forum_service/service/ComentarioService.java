@@ -11,11 +11,11 @@ public interface ComentarioService {
 
     ComentarioResponse obtenerPorId(Long id);
 
-    ComentarioResponse comentar(Long temaId, ComentarioRequest request);
+    ComentarioResponse comentar(Long temaId, ComentarioRequest request, Long actorId);
 
-    ComentarioResponse actualizar(Long id, ComentarioRequest request);
+    ComentarioResponse actualizar(Long id, ComentarioRequest request, Long actorId);
 
-    void eliminar(Long id);
+    void eliminar(Long id, Long actorId);
 
     List<ComentarioResponse> obtenerPorTema(Long temaId);
 
